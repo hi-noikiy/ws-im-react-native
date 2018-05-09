@@ -57,6 +57,9 @@ export {
 } from "./containers/Navigator";
 
 
+let appStateChangeFunc;
+
+
 
 export const logOut = ()=>{
     const {
@@ -70,7 +73,7 @@ export const logOut = ()=>{
     }
     AsyncStorage.removeItem(removeSessionStorageKey)
     dispatch(removeMessageData())
-    AppState.removeEventListener('change', ()=>{});
+    AppState.removeEventListener('change', appStateChangeFunc);
     return new Promise((resolve, reject)=>{
         resolve({
             msg: '已清空数据'
@@ -274,27 +277,27 @@ export const initializeSDKWithOptions = ({
         }
     }
 
-
-    AppState.addEventListener('change', (e)=>{
-        if(e==='active'&&ws.socket&&ws.socket.readyState===3){
+    appStateChangeFunc = (e) => {
+        if (e === 'active' && ws.socket && ws.socket.readyState === 3) {
             const tempWs = ws;
             ws = {
                 socket: new WebSocket(`${chatUrl}`),
                 last_health_time: -1,
                 keepalive: tempWs.keepalive,
-                receiveMessageTimer: ()=>{},
+                receiveMessageTimer: () => { },
                 keepAliveTimer: 0,
             };
             ws.socket.onopen = tempWs.socket.onopen;
             ws.socket.onmessage = tempWs.socket.onmessage;
             ws.socket.onerror = tempWs.socket.onerror;
             ws.socket.onclose = tempWs.socket.onclose;
-            ws.reconnectNumber = tempWs.reconnectNumber+1;
+            ws.reconnectNumber = tempWs.reconnectNumber + 1;
         }
-        if(e==='background'&&ws.socket&&ws.socket.readyState===1){
+        if (e === 'background' && ws.socket && ws.socket.readyState === 1) {
             ws.socket.close()
         }
-    })
+    }
+    AppState.addEventListener('change', appStateChangeFunc)
 
     return new Promise((resolve, reject)=>{
         resolve()
