@@ -96,7 +96,11 @@ export default class MessageSend extends Component{
                                             content_type: 'text',
                                             text_content: textInputValue,
                                         })
-                                        this.textInput.clear()
+                                        this.setState({
+                                            textInputValue: ''
+                                        },()=>{
+                                            this.textInput.clear()
+                                        })
                                     }else {
                                         Toast.warn('请输入内容')
                                     }
@@ -376,7 +380,7 @@ export default class MessageSend extends Component{
             allMessageListData,
             socketInstance,
             selectedId,
-            // listViewInstance,
+            listViewInstance,
         } = this.props
 
         const timestamp: number = Date.parse(new Date().toString())/1000
@@ -412,6 +416,7 @@ export default class MessageSend extends Component{
                 sign,
                 relation_id: selectedId,
                 user_id: userInfo.id,
+                isMock: true
             }
         }
 
@@ -440,7 +445,9 @@ export default class MessageSend extends Component{
             dispatch(addMessageItemData(newData))
         }
 
-        // listViewInstance&&listViewInstance(true)
+        setTimeout(()=>{
+            listViewInstance && listViewInstance(true)
+        ,300})
 
         return new Promise(resolve => {
             resolve({

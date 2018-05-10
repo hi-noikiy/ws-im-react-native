@@ -50,6 +50,7 @@ const newItemDataFunc = (data)=>{
         sign: data.sign,
         type: data.type,
         user_id: data.user_id,
+        isMock: data.isMock,
     }
     switch (data.content_type) {
         case 'text':

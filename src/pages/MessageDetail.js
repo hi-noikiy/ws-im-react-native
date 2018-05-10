@@ -15,7 +15,7 @@ import{
 
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
 import {Toast} from '../utils/PublicFuncitonModule';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/EvilIcons';
 import { connect } from "react-redux";
 import store from "../store";
 import MessageListRow from "../components/MessageListRow";
@@ -148,6 +148,7 @@ class MessageDetail extends Component{
                         userInfo = {userInfo}
                         dispatch = {dispatch}
                         scrollToEnd = {this.scrollToEnd}
+                        listViewInstance={(e) => { this.scrollToEnd(e)}}
                     />
                     {
                         Platform.OS==='ios'&&<KeyboardSpacer/>
@@ -161,17 +162,21 @@ class MessageDetail extends Component{
                             initialPage = {0}
                             images={[{source: {uri: this.state.imageUrl}}]}
                         />
-                        <Icon
-                            name="times-circle-o"
-                            size={30}
-                            style={{position:'absolute',top:50,right:20}}
-                            color={'#fff'}
-                            onPress = {()=>{
+                        <TouchableOpacity
+                            style={{ position: 'absolute', top: 50, right: 20,backgroundColor:'rgba(0,0,0,0.5)',height:40,width:40,borderRadius:20,justifyContent:'center',alignItems:'center'}}
+                            activeOpacity={1}
+                            onPress={() => {
                                 this.setState({
                                     isModalVisible: false,
                                 })
                             }}
-                        />
+                        >
+                            <Icon
+                                name="close"
+                                size={30}
+                                color={'#fff'}
+                            />
+                        </TouchableOpacity>
                     </View>
                 </Modal>
             </View>

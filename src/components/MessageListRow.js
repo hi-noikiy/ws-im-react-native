@@ -10,6 +10,7 @@ import{
     StatusBar,
     FlatList,
     TouchableHighlight,
+    ActivityIndicator,
 } from 'react-native';
 
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
@@ -67,12 +68,21 @@ export default class MessageListRow extends Component{
         )
     }
     rightView(data:{content_type: string,content:{text_content: ?string,image_url: ?string}}){
+        
         const {
             userInfo
         } = this.props
         return(
             <View style={[styles.view4,{justifyContent:'flex-end'}]}>
                 <View style={styles.view11}>
+                    {
+                        data.isMock
+                            ? <ActivityIndicator
+                                size={'small'}
+                                style={{marginRight:10}}
+                            />
+                        :   null
+                    }
                     <View style={[styles.view7]}>
                         {
                             this.contentView({data,left:false,right:true})
