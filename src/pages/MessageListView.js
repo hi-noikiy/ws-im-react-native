@@ -56,6 +56,7 @@ class MessageListView extends Component{
             stickTopSessionList,
             removeSessionList,
         } = this.props
+        
         const sessionListData = nativeSessionListData.filter((e)=>!removeSessionList.includes(`${e.relation_id}`))
         const sessionList = stickTopSessionList.length
         ?   sessionListData.sort((a,b)=>{

@@ -55,20 +55,27 @@ export default class MessageSearch extends Component{
                 transparent={true}
                 animationType={'fade'}
             >
-                <SafeAreaView style={styles.view1}>
-                    <SearchBar
-                        placeholder={'搜索'}
-                        autoFocus={true}
-                        onCancel={()=>{
-                            close()
-                        }}
-                        onChange={(e)=>{
-                            this.setState({
-                                searchValue: e
-                            })
-                        }}
-                    />
-                </SafeAreaView>
+                <View 
+                    style={[
+                        Platform.OS==='ios'&&{paddingTop: 16},
+                        { backgroundColor: '#F0EFF5'}
+                    ]}
+                >
+                    <SafeAreaView style={styles.view1}>
+                        <SearchBar
+                            placeholder={'搜索'}
+                            autoFocus={true}
+                            onCancel={()=>{
+                                close()
+                            }}
+                            onChange={(e)=>{
+                                this.setState({
+                                    searchValue: e
+                                })
+                            }}
+                        />
+                    </SafeAreaView>
+                </View>
                 <ScrollView
                     style={styles.scrollView1}
                     keyboardDismissMode={'on-drag'}

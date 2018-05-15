@@ -25,7 +25,7 @@ import {setListViewInstance} from '../actions/message';
 import Modal from 'react-native-modal'
 import Gallery from 'react-native-image-gallery';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
-import {selectedSessionListItem} from '../actions/message/sessionList';
+import { selectedSessionListItem } from '../actions/message/sessionList';
 
 
 
@@ -60,15 +60,15 @@ class MessageDetail extends Component{
         } = this.props
         dispatch(setListViewInstance(this.scrollToEnd))
     }
-    componentDidUpdate(prevProps,prevState){
-        // console.log(prevProps.allMessageListData);
-        // console.log(prevState);
-        // // console.log(this.props.allMessageListData)
-        // setTimeout(()=>{
-        //     this.scrollToEnd()
-        //
-        // },100)
-    }
+    // componentDidUpdate(prevProps,prevState){
+    //     // console.log(prevProps.allMessageListData);
+    //     // console.log(prevState);
+    //     // // console.log(this.props.allMessageListData)
+    //     // setTimeout(()=>{
+    //     //     this.scrollToEnd()
+    //     //
+    //     // },100)
+    // }
     render() {
         const {
             allMessageListData,
@@ -85,7 +85,7 @@ class MessageDetail extends Component{
         } = navigation.state.params
 
         const messageList = allMessageListData[id]? allMessageListData[id].list : null
-
+        
         const selectedUserInfo = allUserInfoData[id]
 
         const dataSource = messageList ? [...messageList].reverse() : []
@@ -237,6 +237,7 @@ const mapStateToProps = store => {
         allUserInfoData,
         socketInstance,
         refreshing,
+        allUnreadMessage,
     } = store.message
     const {
         userInfo,
@@ -247,6 +248,7 @@ const mapStateToProps = store => {
         allUserInfoData,
         socketInstance,
         refreshing,
+        allUnreadMessage,
     };
 };
 
