@@ -1,6 +1,6 @@
 // @flow
 
-import React,{Component} from "react";
+import React, { Component } from "react";
 import { Provider } from "react-redux";
 import {
     AppState,
@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import store from "./store";
 import App from "./containers/App";
-import {Toast} from "./utils/PublicFuncitonModule";
+import { Toast } from "./utils/PublicFuncitonModule";
 import {
     onChangeWebSocketConnectState,
     setWebSocket,
@@ -39,7 +39,7 @@ import {
     addMessageItemData,
 } from "./actions/message/messageSend"
 import { NavigationActions } from 'react-navigation'
-import {subscribe} from 'redux-subscriber';
+import { subscribe } from 'redux-subscriber';
 
 
 const chatUrl = 'ws://ws.pinggai.cc'
@@ -61,20 +61,20 @@ let appStateChangeFunc;
 
 
 
-export const logOut = ()=>{
+export const logOut = () => {
     const {
         dispatch
     } = store
     const {
         socketInstance
     } = store.getState().message
-    if(socketInstance&&socketInstance.readyState===1){
+    if (socketInstance && socketInstance.readyState === 1) {
         socketInstance.close()
     }
     AsyncStorage.removeItem(removeSessionStorageKey)
     dispatch(removeMessageData())
     AppState.removeEventListener('change', appStateChangeFunc);
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         resolve({
             msg: '已清空数据'
         })
@@ -83,17 +83,17 @@ export const logOut = ()=>{
 
 
 
-export const setStickTopSessionList = (e)=>{
-    if(Array.isArray(e)){
+export const setStickTopSessionList = (e) => {
+    if (Array.isArray(e)) {
         const {
             dispatch
         } = store
         dispatch(setStickTopSessionListFunc(e))
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
             resolve()
         })
-    }else {
-        return new Promise((resolve, reject)=>{
+    } else {
+        return new Promise((resolve, reject) => {
             reject({
                 errmsg: '传入参数类型异常'
             })
@@ -104,7 +104,7 @@ export const setStickTopSessionList = (e)=>{
 
 
 
-export const openMessageDetailViewController = ({id}:{id: number})=>{
+export const openMessageDetailViewController = ({ id }: { id: number }) => {
 
     const {
         dispatch
@@ -142,18 +142,18 @@ export const initializeSDKWithOptions = ({
     getNavigation,
     getStore,
     unreadMessageNumberChange,
-}:{
-    access_token: string,
-    getNavigation: functon,
-    getStore: functon,
-    unreadMessageNumberChange: functon,
-})=>{
+}: {
+        access_token: string,
+        getNavigation: functon,
+        getStore: functon,
+        unreadMessageNumberChange: functon,
+    }) => {
     const {
         dispatch,
     } = store
 
     const unsubscribe = subscribe('message.allUnreadMessage', state => {
-        unreadMessageNumberChange&&unreadMessageNumberChange(state.message.allUnreadMessage)
+        unreadMessageNumberChange && unreadMessageNumberChange(state.message.allUnreadMessage)
     })
 
     dispatch(initRemoveSession())
@@ -169,15 +169,15 @@ export const initializeSDKWithOptions = ({
         keepAliveTimer: number,
         reconnectNumber: number,
     } = {
-        socket: new WebSocket(`${chatUrl}`),
-        last_health_time: -1,
-        keepalive: ()=>{},
-        receiveMessageTimer: ()=>{},
-        keepAliveTimer: 0,
-        reconnectNumber: 0,
-    }
+            socket: new WebSocket(`${chatUrl}`),
+            last_health_time: -1,
+            keepalive: () => { },
+            receiveMessageTimer: () => { },
+            keepAliveTimer: 0,
+            reconnectNumber: 0,
+        }
     ws.last_health_time = -1;
-    ws.keepalive = ()=>{
+    ws.keepalive = () => {
         const time = new Date().getTime()
         if (ws.last_health_time !== -1 && time - ws.last_health_time > 20000) {
             ws.socket.close();
@@ -208,11 +208,11 @@ export const initializeSDKWithOptions = ({
             }
 
             dispatch(setWebSocket({
-                socket:ws.socket
+                socket: ws.socket
             }))
 
             dispatch(onChangeWebSocketConnectState({
-                state : 1
+                state: 1
             }))
 
             ws.socket.send(JSON.stringify({
@@ -225,13 +225,13 @@ export const initializeSDKWithOptions = ({
         };
         ws.socket.onerror = () => {
             dispatch(onChangeWebSocketConnectState({
-                state : 3
+                state: 3
             }))
             // Toast.error('WebSocket错误')
         };
         ws.socket.onmessage = (e) => {
             const data = JSON.parse(e.data)
-            onMessage({ws: ws.socket,data,wsInstance:ws,access_token})
+            onMessage({ ws: ws.socket, data, wsInstance: ws, access_token })
 
             clearTimeout(ws.receiveMessageTimer);
             ws.receiveMessageTimer = setTimeout(() => {
@@ -239,38 +239,36 @@ export const initializeSDKWithOptions = ({
             }, 30000);
         };
         ws.socket.onclose = (e) => {
-            if(e.code!==1001){
+            dispatch(onChangeWebSocketConnectState({
+                state: 2
+            }))
 
-                dispatch(onChangeWebSocketConnectState({
-                    state : 2
-                }))
+            clearTimeout(ws.receiveMessageTimer)
+            clearInterval(ws.keepAliveTimer)
+            if (!reconnectMark) {
 
-                clearTimeout(ws.receiveMessageTimer)
-                clearInterval(ws.keepAliveTimer)
-                if (!reconnectMark) {
+                reconnect = new Date().getTime();
+                reconnectMark = true;
 
-                    reconnect = new Date().getTime();
-                    reconnectMark = true;
+            }
 
-                }
-                const tempWs = ws;
+            if (AppState.currentState === 'active' && ws.socket && ws.socket.readyState === 3) {
                 if (new Date().getTime() - reconnect >= 10000) {
                     ws.socket.close();
                 } else {
-                    if(AppState.currentState==='active'){
-                        ws = {
-                            socket: new WebSocket(`${chatUrl}`),
-                            last_health_time: -1,
-                            keepalive: tempWs.keepalive,
-                            receiveMessageTimer: ()=>{},
-                            keepAliveTimer: 0,
-                        };
-                        ws.socket.onopen = tempWs.socket.onopen;
-                        ws.socket.onmessage = tempWs.socket.onmessage;
-                        ws.socket.onerror = tempWs.socket.onerror;
-                        ws.socket.onclose = tempWs.socket.onclose;
-                        ws.reconnectNumber = tempWs.reconnectNumber+1;
-                    }
+                    const tempWs = ws;
+                    ws = {
+                        socket: new WebSocket(`${chatUrl}`),
+                        last_health_time: -1,
+                        keepalive: tempWs.keepalive,
+                        receiveMessageTimer: () => { },
+                        keepAliveTimer: 0,
+                    };
+                    ws.socket.onopen = tempWs.socket.onopen;
+                    ws.socket.onmessage = tempWs.socket.onmessage;
+                    ws.socket.onerror = tempWs.socket.onerror;
+                    ws.socket.onclose = tempWs.socket.onclose;
+                    ws.reconnectNumber = tempWs.reconnectNumber + 1;
                 }
             }
             // Toast.error('WebSocket关闭')
@@ -299,13 +297,13 @@ export const initializeSDKWithOptions = ({
     }
     AppState.addEventListener('change', appStateChangeFunc)
 
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         resolve()
     })
 }
 
 
-const onMessage = ({ws,data,wsInstance,access_token})=>{
+const onMessage = ({ ws, data, wsInstance, access_token }) => {
     const {
         allUserInfoData,
         allMessageListData,
@@ -325,7 +323,7 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
             }))
             break;
         case 'login':
-            if(data.code===0){
+            if (data.code === 0) {
                 ws.send(JSON.stringify({
                     type: 'user.self',
                 }))
@@ -333,34 +331,34 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                     type: 'message.session.list',
                 }))
 
-                if(wsInstance.reconnectNumber!==0){
+                if (wsInstance.reconnectNumber !== 0) {
                     const {
                         allMessageListData,
                         sessionListData,
                     } = store.getState().message
                     let offlineMessage = []
-                    sessionListData.map((e)=>{
+                    sessionListData.map((e) => {
                         const itemData = allMessageListData[e.relation_id]
-                        if(itemData&&itemData.list.length){
+                        if (itemData && itemData.list.length) {
                             offlineMessage.push({
                                 id: e.relation_id,
                                 last_message_id: itemData.list[0].id
                             })
                         }
                     })
-                    offlineMessage.map((e)=>{
+                    offlineMessage.map((e) => {
                         ws.send(JSON.stringify({
                             type: 'message.list',
                             data: {
                                 type: 'user',
-                    			relation_id: e.id,
+                                relation_id: e.id,
                                 last_message_id: e.last_message_id,
                             }
                         }))
                     })
                 }
 
-            }else {
+            } else {
                 Toast.info(data.msg)
             }
             break;
@@ -380,14 +378,14 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
             //
             // console.log(newArray2);
 
-            dispatch(initSessionListData({list:session_list}))
+            dispatch(initSessionListData({ list: session_list }))
             let newArray = []
-            session_list.map((item)=>{
-                if(!allUserInfoData[item.relation_id]){
+            session_list.map((item) => {
+                if (!allUserInfoData[item.relation_id]) {
                     newArray.push(item.relation_id)
                 }
             })
-            if(newArray.length){
+            if (newArray.length) {
                 ws.send(JSON.stringify({
                     type: 'user.infos',
                     data: {
@@ -396,23 +394,23 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                 }))
             }
 
-            if(session_list.length){
+            if (session_list.length) {
                 messageTaskNumber = session_list.length
                 startMessageWaiting = true
-                messageTaskTimer = setTimeout(()=>{
-                    if(messageTaskCacheData.length){
+                messageTaskTimer = setTimeout(() => {
+                    if (messageTaskCacheData.length) {
                         dispatch(addBatchMessageListViewData({
                             list: messageTaskCacheData
                         }))
                         messageTaskNumber = 0
                         startMessageWaiting = false
                         messageTaskCacheData = []
-                    }else {
+                    } else {
                         //任务队列空
                     }
-                },5000)
+                }, 5000)
             }
-            session_list.map((e)=>{
+            session_list.map((e) => {
                 ws.send(JSON.stringify({
                     type: 'message.list',
                     data: {
@@ -436,29 +434,29 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                 getNavigation,
             } = store.getState().navigation
             const navigation = getNavigation()
-            const lastRouteName = navigation.routes[navigation.routes.length-1].routeName
+            const lastRouteName = navigation.routes[navigation.routes.length - 1].routeName
 
             const newData = {}
-            data.data.list.map((e)=>{
-                if (lastRouteName==='MessageDetail') {
-                    if (selectedSessionListItemId===e.user_id) {
+            data.data.list.map((e) => {
+                if (lastRouteName === 'MessageDetail') {
+                    if (selectedSessionListItemId === e.user_id) {
                         ws.send(JSON.stringify({
                             type: 'message.read',
                             data: {
-                    			user_id: e.user_id,
+                                user_id: e.user_id,
                             }
                         }))
-                    }else {
+                    } else {
                         newData[e.user_id] = e.count
                     }
-                }else {
+                } else {
                     newData[e.user_id] = e.count
                 }
             })
             dispatch(setUnreadMessageNumData(newData))
             break;
         case 'user.info':
-            if(data.code===0){
+            if (data.code === 0) {
                 const {
                     user_info
                 } = data.data
@@ -476,60 +474,60 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                     index,
                     routes,
                 } = navigation
-                if(routes[index].routeName==='MessageDetail'){
+                if (routes[index].routeName === 'MessageDetail') {
                     const setParamsAction = NavigationActions.setParams({
-                        params: { },
+                        params: {},
                         key: routes[index].key,
                     })
                     externalStore.dispatch(setParamsAction)
                 }
-            }else {
+            } else {
                 Toast.info(data.msg)
             }
             break;
         case 'user.infos':
-            if(data.code===0){
+            if (data.code === 0) {
                 const {
                     user_list
                 } = data.data
                 let newData = {}
-                user_list.map((item)=>{
+                user_list.map((item) => {
                     newData[item.id] = item
                 })
                 dispatch(addMoreAllUserInfoData({
                     data: newData
                 }))
-            }else {
+            } else {
                 Toast.info(data.msg)
             }
             break;
         case 'message.list':
-            if(data.code===0){
+            if (data.code === 0) {
                 const {
                     listViewInstance,
                 } = store.getState().message
 
-                if(startMessageWaiting){
+                if (startMessageWaiting) {
                     messageTaskCacheData.push(data.data)
-                    if(messageTaskCacheData.length===messageTaskNumber){
+                    if (messageTaskCacheData.length === messageTaskNumber) {
                         dispatch(addBatchMessageListViewData({
                             list: messageTaskCacheData
                         }))
-                        .then(()=>{
-                            if(data.data.page_data.current_page===1){
-                                setTimeout(()=>{
-                                    listViewInstance&&listViewInstance(true)
-                                },50)
-                            }
-                        })
+                            .then(() => {
+                                if (data.data.page_data.current_page === 1) {
+                                    setTimeout(() => {
+                                        listViewInstance && listViewInstance(true)
+                                    }, 50)
+                                }
+                            })
                         messageTaskNumber = 0
                         startMessageWaiting = false
                         messageTaskCacheData = []
-                        messageTaskTimer&&global.clearTimeout(messageTaskTimer)
-                    }else {
+                        messageTaskTimer && global.clearTimeout(messageTaskTimer)
+                    } else {
                         //任务条件不满足
                     }
-                }else {
+                } else {
                     const {
                         relation_id
                     } = data.data
@@ -537,21 +535,21 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                         id: relation_id,
                         data: data.data
                     }))
-                    .then(()=>{
-                        if(data.data.page_data.current_page===1){
-                            setTimeout(()=>{
-                                listViewInstance&&listViewInstance(true)
-                            },50)
-                        }
-                    })
+                        .then(() => {
+                            if (data.data.page_data.current_page === 1) {
+                                setTimeout(() => {
+                                    listViewInstance && listViewInstance(true)
+                                }, 50)
+                            }
+                        })
                 }
-            }else {
+            } else {
                 Toast.info(data.msg)
             }
             break;
         case 'message':
 
-            if(data.code===0){
+            if (data.code === 0) {
                 const {
                     sign,
                     relation_id,
@@ -576,32 +574,32 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                 const navigation = getNavigation()
 
                 const kfUserId = selectedSessionListItemId
-                const relationId = userInfo.id===relation_id?user_id:relation_id
-                const myRelationId = userInfo.id!==relation_id?user_id:relation_id
+                const relationId = userInfo.id === relation_id ? user_id : relation_id
+                const myRelationId = userInfo.id !== relation_id ? user_id : relation_id
 
-                const sessionListIndex = sessionListData.findIndex((e)=>{return e.relation_id===relationId})
+                const sessionListIndex = sessionListData.findIndex((e) => { return e.relation_id === relationId })
 
-                dispatch(checkIsRemoveSession(relationId,removeSessionList))
+                dispatch(checkIsRemoveSession(relationId, removeSessionList))
 
                 //处理未读消息
-                const isCurrentKf = kfUserId===relationId&&navigation.routes[navigation.routes.length-1].routeName==='MessageDetail'
+                const isCurrentKf = kfUserId === relationId && navigation.routes[navigation.routes.length - 1].routeName === 'MessageDetail'
 
-                if(sessionListIndex !== -1){
+                if (sessionListIndex !== -1) {
                     //设置未读消息
-                    if(!isCurrentKf){
-                        if(allUnreadMessage[relationId]!==undefined){
+                    if (!isCurrentKf) {
+                        if (allUnreadMessage[relationId] !== undefined) {
                             const thisNum = allUnreadMessage[relationId]
                             dispatch(setUnreadMessageNum({
-                                num: thisNum+1,
+                                num: thisNum + 1,
                                 id: relationId,
                             }))
-                        }else {
+                        } else {
                             dispatch(setUnreadMessageNum({
                                 num: 1,
                                 id: relationId,
                             }))
                         }
-                    }else {
+                    } else {
                         ws.send(JSON.stringify({
                             type: 'message.read',
                             data: {
@@ -611,28 +609,28 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                     }
 
                     //更改sessionListData排序
-                    if(sessionListIndex!==0){
+                    if (sessionListIndex !== 0) {
                         const thisSessionData = sessionListData[sessionListIndex]
-                        sessionListData.splice(sessionListIndex,1)
-                        const newData = [thisSessionData,...sessionListData]
-                        dispatch(initSessionListData({list:newData}))
+                        sessionListData.splice(sessionListIndex, 1)
+                        const newData = [thisSessionData, ...sessionListData]
+                        dispatch(initSessionListData({ list: newData }))
                     }
 
 
                     //添加消息处理
-                    if(allMessageListData[relationId]){
-                        const index = allMessageListData[relationId].list.findIndex((item)=>{
-                            return item.sign===sign
+                    if (allMessageListData[relationId]) {
+                        const index = allMessageListData[relationId].list.findIndex((item) => {
+                            return item.sign === sign
                         })
 
-                        if(index!==-1){
+                        if (index !== -1) {
                             dispatch(changeMessageItemData({
                                 id: relationId,
                                 data: data.data,
                                 index,
                                 allMessageListData
                             }))
-                        }else {
+                        } else {
                             dispatch(addMessageItemData({
                                 id: relationId,
                                 data: data.data,
@@ -640,26 +638,26 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                             }))
                         }
 
-                        setTimeout(()=>{
-                            listViewInstance&&listViewInstance()
-                        },200)
+                        setTimeout(() => {
+                            listViewInstance && listViewInstance()
+                        }, 200)
 
-                    }else {
+                    } else {
                         //消息列表中没有这个客服的聊天记录，查询记录
                         ws.send(JSON.stringify({
                             type: 'message.list',
                             data: {
                                 type: 'user',
-                                relation_id:relationId,
+                                relation_id: relationId,
                                 page: 1,
                                 rows: 10,
                             }
                         }))
                     }
 
-                }else {
+                } else {
                     //设置未读消息
-                    if(!isCurrentKf){
+                    if (!isCurrentKf) {
                         dispatch(setUnreadMessageNum({
                             num: 1,
                             id: relationId,
@@ -670,7 +668,7 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                         list: sessionListData,
                         data: {
                             type: 'user',
-                            relation_id:relationId,
+                            relation_id: relationId,
                             last_time: create_time,
                         }
                     }))
@@ -682,7 +680,7 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                         }
                     }))
                 }
-            }else {
+            } else {
                 Toast.info(data.msg)
             }
             break;
