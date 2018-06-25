@@ -21,7 +21,7 @@ import{
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
 import {Toast} from '../utils/PublicFuncitonModule';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {SearchBar} from 'antd-mobile';
+import {SearchBar} from 'antd-mobile-rn';
 import MessageSessionListRow from "../components/MessageSessionListRow";
 
 

@@ -1,7 +1,7 @@
 // 'use strict';
 import types from '../../constants/ActionTypes';
 import { Fetch } from '../../utils';
-import {Toast} from 'antd-mobile';
+import {Toast} from 'antd-mobile-rn';
 
 
 export const getGiftData = ()=>{

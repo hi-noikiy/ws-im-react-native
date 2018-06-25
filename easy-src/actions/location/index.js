@@ -1,5 +1,5 @@
 import types from '../../constants/ActionTypes';
-import {Toast} from 'antd-mobile';
+import {Toast} from 'antd-mobile-rn';
 import {StorageModule,Fetch,fetchStatus} from '../../utils';
 // import store from '../../store/ConfigureStore';
 

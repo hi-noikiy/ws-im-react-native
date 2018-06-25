@@ -15,7 +15,7 @@ import{
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {selectedSessionListItem} from '../actions/message/sessionList';
-import { Badge } from 'antd-mobile';
+import { Badge } from 'antd-mobile-rn';
 import {emojify} from "../pages/MessageEmojiGroup";
 
 

@@ -17,7 +17,7 @@ import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} fro
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {selectedSessionListItem} from '../actions/message/sessionList';
 import {DateFormat} from '../utils/PublicFuncitonModule';
-import { Badge } from 'antd-mobile';
+import { Badge } from 'antd-mobile-rn';
 import {emojify} from "../pages/MessageEmojiGroup";
 import FitImage from 'react-native-fit-image';
 

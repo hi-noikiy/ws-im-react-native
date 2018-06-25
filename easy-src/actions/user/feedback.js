@@ -1,7 +1,7 @@
 'use strict';
 import types from '../../constants/ActionTypes';
 import FetchDataModule from '../../utils/fetch';
-import {Toast} from 'antd-mobile';
+import {Toast} from 'antd-mobile-rn';
 import {fetchStatus} from 'ws-web-utils';
 
 

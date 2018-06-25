@@ -1,7 +1,7 @@
 // 'use strict';
 import types from '../../constants/ActionTypes';
 import { Fetch, fetchStatus } from '../../utils';
-import {Toast} from 'antd-mobile';
+import {Toast} from 'antd-mobile-rn';
 
 
 export const getFAQData = (category_id)=>{
