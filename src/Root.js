@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import {
     AppState,
     AsyncStorage,
+    NetInfo,
 } from "react-native";
 import store from "./store";
 import App from "./containers/App";
@@ -58,6 +59,7 @@ export {
 
 
 let appStateChangeFunc;
+let handleFirstConnectivityChange;
 
 
 
@@ -74,6 +76,7 @@ export const logOut = () => {
     AsyncStorage.removeItem(removeSessionStorageKey)
     dispatch(removeMessageData())
     AppState.removeEventListener('change', appStateChangeFunc);
+    NetInfo.isConnected.removeEventListener('connectionChange', handleFirstConnectivityChange);
     return new Promise((resolve, reject) => {
         resolve({
             msg: '已清空数据'
@@ -275,27 +278,41 @@ export const initializeSDKWithOptions = ({
         }
     }
 
+    const reconnection = () => {
+        const tempWs = ws;
+        ws = {
+            socket: new WebSocket(`${chatUrl}`),
+            last_health_time: -1,
+            keepalive: tempWs.keepalive,
+            receiveMessageTimer: () => { },
+            keepAliveTimer: 0,
+        };
+        ws.socket.onopen = tempWs.socket.onopen;
+        ws.socket.onmessage = tempWs.socket.onmessage;
+        ws.socket.onerror = tempWs.socket.onerror;
+        ws.socket.onclose = tempWs.socket.onclose;
+        ws.reconnectNumber = tempWs.reconnectNumber + 1;
+    }
+
     appStateChangeFunc = (e) => {
         if (e === 'active' && ws.socket && ws.socket.readyState === 3) {
-            const tempWs = ws;
-            ws = {
-                socket: new WebSocket(`${chatUrl}`),
-                last_health_time: -1,
-                keepalive: tempWs.keepalive,
-                receiveMessageTimer: () => { },
-                keepAliveTimer: 0,
-            };
-            ws.socket.onopen = tempWs.socket.onopen;
-            ws.socket.onmessage = tempWs.socket.onmessage;
-            ws.socket.onerror = tempWs.socket.onerror;
-            ws.socket.onclose = tempWs.socket.onclose;
-            ws.reconnectNumber = tempWs.reconnectNumber + 1;
+            reconnection()
         }
         if (e === 'background' && ws.socket && ws.socket.readyState === 1) {
             ws.socket.close()
         }
     }
     AppState.addEventListener('change', appStateChangeFunc)
+
+    handleFirstConnectivityChange = (isConnected) => {
+        if (isConnected) {
+            reconnection()
+        } else {
+            ws.socket.close()
+        }
+    }
+    NetInfo.isConnected.addEventListener('connectionChange', handleFirstConnectivityChange)
+
 
     return new Promise((resolve, reject) => {
         resolve()
