@@ -305,10 +305,12 @@ export const initializeSDKWithOptions = ({
     AppState.addEventListener('change', appStateChangeFunc)
 
     handleFirstConnectivityChange = (isConnected) => {
-        if (isConnected) {
-            reconnection()
-        } else {
-            ws.socket.close()
+        if (ws.reconnectNumber !== 0) {
+            if (isConnected) {
+                reconnection()
+            } else {
+                ws.socket.close()
+            }
         }
     }
     NetInfo.isConnected.addEventListener('connectionChange', handleFirstConnectivityChange)
