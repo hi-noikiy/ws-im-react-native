@@ -1,5 +1,15 @@
 # ws-im-react-native
 
+## Installation
+
+```javascript
+yarn add ws-im-react-native
+```
+or
+```javascript
+npm install ws-im-react-native --save
+```
+
 # `Component`
 ### `MessageListView`
 Prop | Description | Type | Default
