@@ -81,11 +81,9 @@ export default class MessageSend extends Component{
                                 withRef = {(e)=>{this.textInput=e}}
                                 style = {styles.textInput1}
                                 underlineColorAndroid={'transparent'}
-                                value = {textInputValue}
+                                // value = {textInputValue}
                                 onChangeText = {(e)=>{
-                                    this.setState({
-                                        textInputValue: e
-                                    })
+                                    this.state.textInputValue = e;
                                 }}
                                 onSubmitEditing = {()=>{
                                     const {
@@ -100,6 +98,10 @@ export default class MessageSend extends Component{
                                             textInputValue: ''
                                         },()=>{
                                             this.textInput.clear()
+                                            this.textInput.setNativeProps({ text: ' ' })
+                                            setTimeout(() => {
+                                                this.textInput.setNativeProps({ text: '' });
+                                            });
                                         })
                                     }else {
                                         Toast.warn('请输入内容')
