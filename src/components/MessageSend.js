@@ -81,9 +81,12 @@ export default class MessageSend extends Component{
                                 withRef = {(e)=>{this.textInput=e}}
                                 style = {styles.textInput1}
                                 underlineColorAndroid={'transparent'}
-                                // value = {textInputValue}
+                                value = {textInputValue}
                                 onChangeText = {(e)=>{
                                     this.state.textInputValue = e;
+                                    if (Platform.OS === 'android') {
+                                        this.setState({})
+                                    }
                                 }}
                                 onSubmitEditing = {()=>{
                                     const {
@@ -224,7 +227,8 @@ export default class MessageSend extends Component{
     }
     emojiView(){
         const {
-            showEmoji
+            showEmoji,
+            textInputValue
         } = this.state
         if(showEmoji){
             return(
@@ -235,10 +239,12 @@ export default class MessageSend extends Component{
                                 activeOpacity={1}
                                 key = {i}
                                 onPress = {()=>{
-                                    this.setState((e)=>{
-                                        e.textInputValue = `${e.textInputValue}${data.emoji}`
-                                        return e
-                                    })
+                                    // this.setState((e)=>{
+                                    //     e.textInputValue = `${e.textInputValue}${data.emoji}`
+                                    //     return e
+                                    // })
+                                    this.state.textInputValue = `${textInputValue}${data.emoji}`
+                                    this.setState({})
                                 }}
                             >
                                 <Emoji
